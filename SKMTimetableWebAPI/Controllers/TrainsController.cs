@@ -6,41 +6,112 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using SKMTimetableWebAPI.Parser;
+using Newtonsoft.Json;
+using System.Net.Http.Headers;
+using System.IO;
+using System.Text;
 
 namespace SKMTimetableWebAPI.Controllers
 {
+
     public class TrainsController : ApiController
     {
-        List<Train> trainList = new List<Train>();
         Timetable timetable = new Timetable();
 
 
         //Be Aware of using this! (loading full API takes up to 30-50 minutes)
-        public IEnumerable<Train> GetAllTrains()
-        {
-            //trainList = timetable.Scraper(43,48, true);
-            trainList = timetable.AllStationsData();
+        //public IEnumerable<Train> GetAllTrains()
+        //{
+        //    //trainList = timetable.Scraper(43,48, true);
+        //    trainList = timetable.AllStationsData();
             
-            return trainList;
-        }
+        //    return trainList;
+        //}
 
         public IHttpActionResult GetOneTrain(int idStart, int idEnd)
         {
-            trainList = timetable.Scraper(idStart, idEnd, true);
-            if (trainList == null)
+            var collection = new List<Train>();
+            //trainList = timetable.Scraper(idStart, idEnd, true);
+            collection = timetable.Scraper(idStart, idEnd, true);
+
+            dynamic collectionWrapper = new
+            {
+                records = collection
+            };
+
+            //var output = JsonConvert.SerializeObject(collectionWrapper);
+
+
+            if (collectionWrapper == null)
                 return NotFound();
 
-            return Ok(trainList);
+            return Ok(collectionWrapper);
+        }
+
+        public IHttpActionResult GetOneTrain(int idStart, int idEnd, int hour)
+        {
+            var collection = new List<Train>();
+            
+
+            //trainList = timetable.Scraper(idStart, idEnd, true);
+            collection = timetable.Scraper(idStart, idEnd, true, hour);
+            collection.AddRange(timetable.ScraperTommorowShort(idStart, idEnd, false, 1));
+
+            dynamic collectionWrapper = new
+            {
+                records = collection
+            };
+
+            //var output = JsonConvert.SerializeObject(collectionWrapper);
+
+
+            if (collectionWrapper == null)
+                return NotFound();
+
+            return Ok(collectionWrapper);
+        }
+
+        public IHttpActionResult GetOneTrain(int idStart, int idEnd, bool today, int hour)
+        {
+            var collection = new List<Train>();
+            //trainList = timetable.Scraper(idStart, idEnd, true);
+            collection = timetable.Scraper(idStart, idEnd, today, hour);
+
+            dynamic collectionWrapper = new
+            {
+                records = collection
+            };
+
+            //var output = JsonConvert.SerializeObject(collectionWrapper);
+
+
+            if (collectionWrapper == null)
+                return NotFound();
+
+            return Ok(collectionWrapper);
         }
 
         public IHttpActionResult GetOneTrain(int idStart, int idEnd, bool today)
         {
-            trainList = timetable.Scraper(idStart, idEnd, today);
-            if (trainList == null)
+            var collection = new List<Train>();
+            //trainList = timetable.Scraper(idStart, idEnd, true);
+            collection = timetable.Scraper(idStart, idEnd, today);
+
+            dynamic collectionWrapper = new
+            {
+                records = collection
+            };
+
+            //var output = JsonConvert.SerializeObject(collectionWrapper);
+
+
+            if (collectionWrapper == null)
                 return NotFound();
 
-            return Ok(trainList);
+
+            return Ok(collectionWrapper);
         }
+
 
     }
 }
