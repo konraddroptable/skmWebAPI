@@ -4,11 +4,19 @@ using System.Linq;
 using System.Web;
 using HtmlAgilityPack;
 using SKMTimetableWebAPI.Models;
+using System.Text;
 
 namespace SKMTimetableWebAPI.Parser
 {
     public class Timetable
     {
+        public string DecodeFromUtf8(string str)
+        {
+            byte[] bytes = Encoding.Default.GetBytes(str);
+
+            return Encoding.UTF8.GetString(bytes);
+        }
+
 
         public List<Train> Scraper(int idStart, int idEnd, bool today)
         {
@@ -162,7 +170,7 @@ namespace SKMTimetableWebAPI.Parser
                                 Hour = newHour.ToString(),
                                 Minute = doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + minutes).InnerText.ToString(),
                                 //sometimes Tip is null
-                                Tip = doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + tips).InnerText.ToString().Trim()
+                                Tip = DecodeFromUtf8(doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + tips).InnerText.ToString().Trim())
                             });
                         }
 
@@ -244,7 +252,7 @@ namespace SKMTimetableWebAPI.Parser
                                     Hour = newHour.ToString(),
                                     Minute = doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + minutes).InnerText.ToString(),
                                     //sometimes Tip is null
-                                    Tip = doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + tips).InnerText.ToString().Trim()
+                                    Tip = DecodeFromUtf8(doc.DocumentNode.SelectSingleNode("(" + singleStationRow + "[" + i + "]" + minutesCell + ")[" + j + "]" + tips).InnerText.ToString().Trim())
                                 });
                         }
 
